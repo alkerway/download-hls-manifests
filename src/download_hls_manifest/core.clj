@@ -2,13 +2,31 @@
   (:require [clj-http.client :as client]
             [download-hls-manifest.parser :as parser]
             [download-hls-manifest.config :as config]
+            [clojure.string :as cljstr]
             [clojure.java.io :as io]))
 
-(defn downloadMaster [url]
-  (let [master (:body (client/get url))]
-    (println (parser/getStreamUrls master))
-    (with-open [wrtr (io/writer (str config/basePath "/master.m3u8"))]
-      (.write wrtr master))
+(defn saveRemoteToFile [remoteUrl filePath]
+  (let [body (:body (client/get remoteUrl))]
+    (with-open [wrtr (io/writer (str config/basePath "/" filePath))]
+      (.write wrtr body))
+    body))
+  
+  
+(defn getFrags [levelUrl masterUrl]
+  (let [filePath (parser/getLocalPath levelUrl masterUrl)
+        remotePath (parser/getRemotePath levelUrl masterUrl)]
+    (println filePath)
+    (println remotePath)
+    (saveRemoteToFile remotePath filePath)
+    ))
+
+
+(defn downloadMaster [masterUrl]
+  (let [master (saveRemoteToFile masterUrl "master.m3u8")
+        levelUrls (parser/getStreamUrls master)]
+    (loop [levels levelUrls]
+      (let [eachUrl (first levels)]
+        (if eachUrl (do (getFrags eachUrl masterUrl)
+          (recur (rest levels))))))
     {:status 200
      :body master}))
-  
