@@ -5,6 +5,10 @@
   (filter #(re-matches #"[^#].+\.m3u8" %)
           (cljstr/split-lines masterManifest)))
 
+(defn getFragUrls [levelManifest]
+  (filter #(re-matches #"[^#].+\.ts" %)
+          (cljstr/split-lines levelManifest)))
+
 
 (defn getLocalPath [target base]
   (cond (re-matches #"^http.*" target)

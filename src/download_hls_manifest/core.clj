@@ -14,10 +14,9 @@
   
 (defn getFrags [levelUrl masterUrl]
   (let [filePath (parser/getLocalPath levelUrl masterUrl)
-        remotePath (parser/getRemotePath levelUrl masterUrl)]
-    (println filePath)
-    (println remotePath)
-    (saveRemoteToFile remotePath filePath)
+        remotePath (parser/getRemotePath levelUrl masterUrl)
+        fragUrls (parser/getFragUrls (saveRemoteToFile remotePath filePath))]
+    (println (count fragUrls))
     ))
 
 
