@@ -4,11 +4,14 @@
 (defn getAttributes [line]
   (let [noQuotes (cljstr/replace line #"\"" "")]
     (reduce #(assoc %1 (first (cljstr/split %2 #"=")) (second (cljstr/split %2 #"="))) {}
-      (cljstr/split (subs noQuotes (+ 1 (count (first (cljstr/split noQuotes #":.*"))))) #","))))
+        (cljstr/split (subs noQuotes (+ 1 (count
+           (first (cljstr/split noQuotes #":.*"))))) #","))))
 
 (defn extractMedia [urls line]
-  (cond (re-matches #"[^#].+(?:\.m3u8|\.ts)" line) (conj urls line)
-        (re-matches #"#EXT-X-MEDIA.+URI=.+" line) (conj urls (get (getUriAttributes line) "URI"))
+  (cond (re-matches #"[^#].+(?:\.m3u8|\.ts)" line)
+          (conj urls line)
+        (re-matches #"#EXT-X-MEDIA.+URI=.+" line)
+          (conj urls (get (getUriAttributes line) "URI"))
         :else urls))
 
 (defn getChildUrls [manifest]
@@ -20,7 +23,7 @@
 (defn getLocalPath [target base]
   (cond (re-matches #"^http.*" target)
         (removeOrigin target)
-        (= (first target) "/") (subs target 1)
+          (= (first target) "/") (subs target 1)
         :else target))
 
 (defn getRemotePath [target base]
