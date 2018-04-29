@@ -7,9 +7,10 @@
             [clojure.java.io :as io]))
 
 (defn saveRemoteToFile [remoteUrl filePath]
-  (let [body (:body (client/get remoteUrl))]
+  (let [body (:body (client/get remoteUrl))
+        replacedBody (if (re-matches #".+\.m3u8" remoteUrl) (parser/replaceAbsolutePaths body) body)]
     (with-open [wrtr (io/writer (str config/basePath "/" filePath))]
-      (.write wrtr body)) body))
+      (.write wrtr replacedBody)) replacedBody))
 
 (defn getHls ([url] (getHls url "" ""))
   ([currentUrl parentUrl parentPath]
