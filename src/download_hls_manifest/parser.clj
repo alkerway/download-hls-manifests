@@ -1,10 +1,18 @@
 (ns download-hls-manifest.parser
   (:require [clojure.string :as cljstr]))
 
+(defn getAttributes [line]
+  (let [noQuotes (cljstr/replace line #"\"" "")]
+    (reduce #(assoc %1 (first (cljstr/split %2 #"=")) (second (cljstr/split %2 #"="))) {}
+      (cljstr/split (subs noQuotes (+ 1 (count (first (cljstr/split noQuotes #":.*"))))) #","))))
+
+(defn extractMedia [urls line]
+  (cond (re-matches #"[^#].+(?:\.m3u8|\.ts)" line) (conj urls line)
+        (re-matches #"#EXT-X-MEDIA.+URI=.+" line) (conj urls (get (getUriAttributes line) "URI"))
+        :else urls))
+
 (defn getChildUrls [manifest]
-  ; TODO - add EXT-MEDIA urls (audio tracks, etc)
-  (filter #(re-matches #"[^#].+(?:\.m3u8|\.ts)" %)
-          (cljstr/split-lines manifest)))
+ (reduce extractMedia [] (cljstr/split-lines manifest)))
 
 (defn removeOrigin [url]
    (cljstr/join "/" (rest (cljstr/split (subs url 8) #"/"))))
