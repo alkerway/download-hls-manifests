@@ -2,6 +2,7 @@
   (:require [clojure.string :as cljstr]))
 
 (defn getChildUrls [manifest]
+  ; TODO - add EXT-MEDIA urls (audio tracks, etc)
   (filter #(re-matches #"[^#].+(?:\.m3u8|\.ts)" %)
           (cljstr/split-lines manifest)))
 
