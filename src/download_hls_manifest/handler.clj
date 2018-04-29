@@ -6,7 +6,7 @@
             [download-hls-manifest.core :as core]))
 
 (defn manifestRequest [request]
-  (core/downloadMaster (get-in request [:body "url"])))
+  (core/getHls (get-in request [:body "url"]) "" ""))
 
 (defroutes app-routes
   (GET "/" [] "Hello World")
