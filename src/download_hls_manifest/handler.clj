@@ -6,11 +6,11 @@
             [download-hls-manifest.core :as core]))
 
 (defn manifestRequest [request]
-  (core/getHls (get-in request [:body "url"]) "" ""))
+  (try (do (core/getHls (get-in request [:body "url"])) {:status 200 :body "success"})
+       (catch Exception e {:status 400 :body (str "error: " (.getMessage e))})))
 
 (defroutes app-routes
-  (GET "/" [] "Hello World")
-  (POST "/dl" [r] manifestRequest)
+  (POST "/dl" [req] manifestRequest)
   (route/not-found "Not Found"))
 
 (def app
